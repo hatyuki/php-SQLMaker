@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
-require_once 'Kirin/SQLMaker/Condition.php';
+require_once 'SQLMaker/Condition.php';
 
-$w1 = new KirinSQLMakerCondition( );
+$w1 = new SQLMakerCondition( );
 $w1->add( array('x' => 1) );
 $w1->add( array('y' => 2) );
 
-$w2 = new KirinSQLMakerCondition( );
+$w2 = new SQLMakerCondition( );
 $w2->add('a', 3);
 $w2->add('b', 4);
 

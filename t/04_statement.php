@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
-require_once 'Kirin/SQLMaker/Select.php';
+require_once 'SQLMaker/Select.php';
 
 
 function prefix ($t)
@@ -59,7 +59,7 @@ function from ($t)
 
 function _ns ($args=array( ))
 {
-    return new KirinSQLMakerSelect($args);
+    return new SQLMakerSelect($args);
 }
 
 done_testing( );

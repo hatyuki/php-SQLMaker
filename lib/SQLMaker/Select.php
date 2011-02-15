@@ -1,9 +1,9 @@
 <?php
-require_once 'Kirin/SQLMaker/Util.php';
-require_once 'Kirin/SQLMaker/Condition.php';
+require_once 'SQLMaker/Util.php';
+require_once 'SQLMaker/Condition.php';
 
 
-class KirinSQLMakerSelect
+class SQLMakerSelect
 {
     public    $quote_char         = '';
     public    $name_sep           = '.';
@@ -91,7 +91,7 @@ class KirinSQLMakerSelect
 
     function new_condition ( )
     {
-        return new KirinSQLMakerCondition( array(
+        return new SQLMakerCondition( array(
             'quote_char' => $this->quote_char,
             'name_sep'   => $this->name_sep,
         ) );
@@ -109,7 +109,7 @@ class KirinSQLMakerSelect
 
     function add_select ($term, $col=null)
     {
-        if (KirinSQLMakerUtil::ref($term) == 'SCALAR') {
+        if (SQLMakerUtil::ref($term) == 'SCALAR') {
             $term = array($term => $col);
         }
 
@@ -131,7 +131,7 @@ class KirinSQLMakerSelect
 
     function add_from ($table, $alias=null)
     {
-        if (KirinSQLMakerUtil::ref($table) == 'SCALAR') {
+        if (SQLMakerUtil::ref($table) == 'SCALAR') {
             $table = array($table => $alias);
         }
 
@@ -152,7 +152,7 @@ class KirinSQLMakerSelect
     function add_join ($table, $joins)
     {
         $alias = null;
-        if (KirinSQLMakerUtil::ref($table) == 'HASH') {
+        if (SQLMakerUtil::ref($table) == 'HASH') {
             list($table, $alias) = each($table);
         }
         else if ( is_object($table) && method_exists($table, 'as_sql') ) {
@@ -180,14 +180,14 @@ class KirinSQLMakerSelect
 
     protected function quote ($label)
     {
-        return KirinSQLMakerUtil::quote_identifier(
+        return SQLMakerUtil::quote_identifier(
             $label, $this->quote_char, $this->name_sep
         );
     }
 
     protected function ref ($value)
     {
-        return KirinSQLMakerUtil::ref($value);
+        return SQLMakerUtil::ref($value);
     }
 
     function as_sql ( )
@@ -238,7 +238,7 @@ class KirinSQLMakerSelect
                 $sql .= ' ' . strtoupper($join['type']) . " JOIN {$this->quote($join['table'])}";
                 $sql .= isset($join['alias']) ? " {$this->quote($join['alias'])}" : '';
 
-                if (KirinSQLMakerUtil::ref($join['condition']) == 'ARRAY') {
+                if (SQLMakerUtil::ref($join['condition']) == 'ARRAY') {
                     $cond = array( );
                     foreach ($this->condition as &$c) {
                         $cond[ ] = $this->quote($c);
@@ -323,7 +323,7 @@ class KirinSQLMakerSelect
 
     function add_group_by ($group, $group=null)
     {
-        if (KirinSQLMakerUtil::ref($group) == 'HASH') {
+        if (SQLMakerUtil::ref($group) == 'HASH') {
             list($group, $order) = each($group);
         }
 
@@ -373,7 +373,7 @@ class KirinSQLMakerSelect
 
     function add_having ($col, $val=null)
     {
-        if (KirinSQLMakerUtil::ref($col) == 'HASH') {
+        if (SQLMakerUtil::ref($col) == 'HASH') {
             list($col, $val) = each($col);
         }
 
@@ -397,7 +397,7 @@ class KirinSQLMakerSelect
 
     protected function _add_index_hint ($table, $alias=null)
     {
-        if (KirinSQLMakerUtil::ref($table) == 'HASH') {
+        if (SQLMakerUtil::ref($table) == 'HASH') {
             list($table, $alias) = each($table);
         }
 
@@ -408,7 +408,7 @@ class KirinSQLMakerSelect
         }
 
         $hint = $this->index_hint[$table];
-        if (KirinSQLMakerUtil::ref($hint['list']) == 'ARRAY' && !empty($hint['list'])) {
+        if (SQLMakerUtil::ref($hint['list']) == 'ARRAY' && !empty($hint['list'])) {
             $list = array( );
             foreach ($hint['list'] as &$l) {
                 $list[ ] = $l;

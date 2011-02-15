@@ -1,8 +1,8 @@
 <?php
-require_once 'Kirin/SQLMaker/Util.php';
+require_once 'SQLMaker/Util.php';
 
 
-class KirinSQLMakerCondition
+class SQLMakerCondition
 {
 	public    $bind       = array( );
 	protected $sql        = array( );
@@ -11,7 +11,7 @@ class KirinSQLMakerCondition
 
     protected function quote ($label)
     {
-        return KirinSQLMakerUtil::quote_identifier(
+        return SQLMakerUtil::quote_identifier(
             $label, $this->quote_char, $this->name_sep
         );
     }
@@ -27,7 +27,7 @@ class KirinSQLMakerCondition
 
 	protected function make_term ($col, $val)
 	{
-        $ref_val = KirinSQLMakerUtil::ref($val);
+        $ref_val = SQLMakerUtil::ref($val);
 
         if ($ref_val == 'ARRAY') {
             # make_term( array('foo', array(1, 2, 3)) ) => foo IN (1, 2, 3)
@@ -37,7 +37,7 @@ class KirinSQLMakerCondition
         else if ($ref_val == 'HASH') {
             list($op, $v) = each($val);
             $op = strtoupper($op);
-            $ref_v = KirinSQLMakerUtil::ref($v);
+            $ref_v = SQLMakerUtil::ref($v);
 
             if ( ($op == 'IN' || $op == 'NOT IN') && $ref_v == 'ARRAY') {
                 if (sizeof($v) == 0) {
@@ -141,7 +141,7 @@ class KirinSQLMakerCondition
 
     function compose_and ($other)
     {
-        return new KirinSQLMakerCondition( array(
+        return new SQLMakerCondition( array(
             'sql'  => array("({$this->as_sql( )}) AND ({$other->as_sql( )})"),
             'bind' => array_merge($this->bind, $other->bind),
         ) );
@@ -149,7 +149,7 @@ class KirinSQLMakerCondition
 
     function compose_or ($other)
     {
-        return new KirinSQLMakerCondition( array(
+        return new SQLMakerCondition( array(
             'sql'  => array("({$this->as_sql( )}) OR ({$other->as_sql( )})"),
             'bind' => array_merge($this->bind, $other->bind),
         ) );

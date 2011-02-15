@@ -1,6 +1,6 @@
 <?php
 
-class KirinSQLMakerUtil
+class SQLMakerUtil
 {
 	static function ref ($value)
 	{

@@ -1,12 +1,12 @@
 #!/usr/bin/env php
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
-require_once 'Kirin/SQLMaker.php';
+require_once 'SQLMaker.php';
 
 
 function insert_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite');
+    $builder = new SQLMaker('sqlite');
     list($sql, $binds) = $builder->insert('foo', array('bar' => 'baz', 'john' => 'man'));
     $t->is($sql, "INSERT INTO \"foo\"\n(\"bar\", \"john\")\nVALUES (?, ?)");
     $t->is(implode(',', $binds), 'baz,man');
@@ -14,7 +14,7 @@ function insert_driver_sqlite ($t)
 
 function insert_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' ') );
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' ') );
     list($sql, $binds) = $builder->insert('foo', array('bar' => 'baz', 'john' => 'man'));
     $t->is($sql, 'INSERT INTO foo (bar, john) VALUES (?, ?)');
     $t->is(implode(',', $binds), 'baz,man');
@@ -22,7 +22,7 @@ function insert_driver_mysql ($t)
 
 function delete_simple_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite');
+    $builder = new SQLMaker('sqlite');
     list($sql, $binds) = $builder->delete('foo', array('bar' => 'baz', 'john' => 'man'));
     $t->is($sql, 'DELETE FROM "foo" WHERE ("bar" = ?) AND ("john" = ?)');
     $t->is(implode(',', $binds), 'baz,man');
@@ -30,7 +30,7 @@ function delete_simple_driver_sqlite ($t)
 
 function delete_simple_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
     list($sql, $binds) = $builder->delete('foo', array('bar' => 'baz', 'john' => 'man'));
     $t->is($sql, 'DELETE FROM foo WHERE (bar = ?) AND (john = ?)');
     $t->is(implode(',', $binds), 'baz,man');
@@ -38,7 +38,7 @@ function delete_simple_driver_mysql ($t)
 
 function delete_all_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite');
+    $builder = new SQLMaker('sqlite');
     list($sql, $binds) = $builder->delete('foo');
     $t->is($sql, 'DELETE FROM "foo"');
     $t->is(implode(',', $binds), '');
@@ -46,7 +46,7 @@ function delete_all_driver_sqlite ($t)
 
 function delete_all_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
     list($sql, $binds) = $builder->delete('foo');
     $t->is($sql, 'DELETE FROM foo');
     $t->is(implode(',', $binds), '');
@@ -54,7 +54,7 @@ function delete_all_driver_mysql ($t)
 
 function update_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite');
+    $builder = new SQLMaker('sqlite');
 
     do {
         list($sql, $binds) = $builder->update('user', array('name' => 'john', 'email' => 'john@example.com'), array('user_id' => 3));
@@ -77,7 +77,7 @@ function update_driver_sqlite ($t)
 
 function update_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
 
     do {
         list($sql, $binds) = $builder->update('user', array('name' => 'john', 'email' => 'john@example.com'), array('user_id' => 3));
@@ -100,7 +100,7 @@ function update_driver_mysql ($t)
 
 function select_query_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite');
+    $builder = new SQLMaker('sqlite');
 
     $stmt = $builder->select_query('foo', array('foo', 'bar'), array('bar' => 'baz', 'john' => 'man'), array('order_by' => 'yo'));
     $t->is($stmt->as_sql( ), "SELECT \"foo\", \"bar\"\nFROM \"foo\"\nWHERE (\"bar\" = ?) AND (\"john\" = ?)\nORDER BY \"yo\"");
@@ -109,7 +109,7 @@ function select_query_driver_sqlite ($t)
 
 function select_query_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
 
     $stmt = $builder->select_query('foo', array('foo', 'bar'), array('bar' => 'baz', 'john' => 'man'), array('order_by' => 'yo'));
     $t->is($stmt->as_sql( ), 'SELECT foo, bar FROM foo WHERE (bar = ?) AND (john = ?) ORDER BY yo');
@@ -118,9 +118,9 @@ function select_query_driver_mysql ($t)
 
 function new_select_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite', array('quote_char' => '`', 'name_sep' => '.'));
+    $builder = new SQLMaker('sqlite', array('quote_char' => '`', 'name_sep' => '.'));
     $select  = $builder->new_select( );
-    $t->isa_ok($select, 'KirinSQLMakerSelect');
+    $t->isa_ok($select, 'SQLMakerSelect');
     $t->is($select->quote_char, '`');
     $t->is($select->name_sep, '.');
     $t->is($select->new_line, "\n");
@@ -128,9 +128,9 @@ function new_select_driver_sqlite ($t)
 
 function new_select_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'name_sep' => '.', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'name_sep' => '.', 'new_line' => ' '));
     $select  = $builder->new_select( );
-    $t->isa_ok($select, 'KirinSQLMakerSelect');
+    $t->isa_ok($select, 'SQLMakerSelect');
     $t->is($select->quote_char, '');
     $t->is($select->name_sep, '.');
     $t->is($select->new_line, " ");
@@ -138,7 +138,7 @@ function new_select_driver_mysql ($t)
 
 function select_driver_sqlite ($t)
 {
-    $builder = new KirinSQLMaker('sqlite', array('new_line' => ' '));
+    $builder = new SQLMaker('sqlite', array('new_line' => ' '));
 
     do {
         list($sql, $binds) = $builder->select('foo', array('foo', 'bar'), array('bar' => 'baz', 'john' => 'man'), array('order_by' => 'yo'));
@@ -161,7 +161,7 @@ function select_driver_sqlite ($t)
 
 function order_by_driver_mysql ($t)
 {
-    $builder = new KirinSQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
+    $builder = new SQLMaker('mysql', array('quote_char' => '', 'new_line' => ' '));
 
     do {
         list($sql, $binds) = $builder->select('foo', array('*'), null, array('order_by' => 'yo'));

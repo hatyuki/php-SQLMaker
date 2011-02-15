@@ -1,10 +1,10 @@
 <?php
-require_once 'Kirin/SQLMaker/Select.php';
-require_once 'Kirin/SQLMaker/Condition.php';
-require_once 'Kirin/SQLMaker/Util.php';
+require_once 'SQLMaker/Select.php';
+require_once 'SQLMaker/Condition.php';
+require_once 'SQLMaker/Util.php';
 
 
-class KirinSQLMaker
+class SQLMaker
 {
     public $quote_char   = null;
     public $name_sep     = '.';
@@ -23,7 +23,7 @@ class KirinSQLMaker
             $args['quote_char'] = $driver == 'mysql' ? '`' : '"';
         }
 
-        $args['select_class'] = 'KirinSQLMakerSelect';
+        $args['select_class'] = 'SQLMakerSelect';
 
         foreach (get_object_vars($this) as $property => $v) {
             if ( isset($args[$property]) ) {
@@ -53,7 +53,7 @@ class KirinSQLMaker
         foreach ($values as $col => $val) {
             $quoted_columns[ ] = $this->quote($col);
 
-            if (KirinSQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
+            if (SQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
                 # $builder->insert('foo', array('created_on' => array('inject' => 'NOW( )')));
                 $columns[ ] = $val['inject'];
             }
@@ -72,7 +72,7 @@ class KirinSQLMaker
 
     protected function quote ($label)
     {
-        return KirinSQLMakerUtil::quote_identifier(
+        return SQLMakerUtil::quote_identifier(
             $label, $this->quote_char, $this->name_sep
         );
     }
@@ -94,7 +94,7 @@ class KirinSQLMaker
         foreach ($args as $col => $val) {
             $quoted_col = $this->quote($col);
 
-            if (KirinSQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
+            if (SQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
                 # $builder->insert('foo', array('created_on' => array('inject' => 'NOW( )')));
                 $columns[ ] = "{$quoted_col} = {$val['inject']}";
             }
@@ -115,7 +115,7 @@ class KirinSQLMaker
 
     protected function make_where_clause ($where)
     {
-        $w = new KirinSQLMakerCondition( array(
+        $w = new SQLMakerCondition( array(
             'quote_char' => $this->quote_char,
             'name_sep'   => $this->name_sep,
         ) );
@@ -135,8 +135,8 @@ class KirinSQLMaker
 
     function select_query ($table, $fields, $where=array( ), $opt=array( ))
     {
-        if (KirinSQLMakerUtil::ref($fields) != 'ARRAY') {
-            trigger_error("KirinSQLMaker::select_query: \$fields should be ARRAY", E_USER_ERROR);
+        if (SQLMakerUtil::ref($fields) != 'ARRAY') {
+            trigger_error("SQLMaker::select_query: \$fields should be ARRAY", E_USER_ERROR);
         }
 
         $stmt = $this->new_select( array('select' => $fields) );
@@ -153,7 +153,7 @@ class KirinSQLMaker
         if ( isset($opt['order_by']) ) {
             $o = $opt['order_by'];
 
-            if (KirinSQLMakerUtil::ref($o) == 'ARRAY') {
+            if (SQLMakerUtil::ref($o) == 'ARRAY') {
                 foreach ($o as $order) {
                     $stmt->add_order_by($order);
                 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
-require_once 'Kirin/SQLMaker/Condition.php';
+require_once 'SQLMaker/Condition.php';
 
 
 function test ($t)
@@ -106,7 +106,7 @@ function test ($t)
     );
 
     foreach ($test_case as $test) {
-        $condition = new KirinSQLMakerCondition( array('name_sep' => '.', 'quote_char' => '`') );
+        $condition = new SQLMakerCondition( array('name_sep' => '.', 'quote_char' => '`') );
         $condition->add( $test['in'] );
         $t->is("{$condition}", "({$test['query']})");
         $t->is_deeply($condition->bind, $test['bind']);
