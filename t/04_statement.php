@@ -46,13 +46,8 @@ function from ($t)
 
     do {
         $stmt = _ns(array('quote_char' => '', 'name_sep' => '.', 'new_line' => ' '));
-        $stmt->add_from( array('foo', 'bar') );
-        $t->is($stmt->as_sql( ), "FROM foo, bar");
-    } while (false);
-
-    do {
-        $stmt = _ns(array('quote_char' => '', 'name_sep' => '.', 'new_line' => ' '));
-        $stmt->add_from( array('foo' => 'f', 'bar' => 'b') );
+        $stmt->add_from( array('foo', 'f') );
+        $stmt->add_from('bar', 'b');
         $t->is($stmt->as_sql( ), "FROM foo f, bar b");
     } while (false);
 }

@@ -32,6 +32,14 @@ class SQLMaker
         }
     }
 
+    function new_condition ( )
+    {
+        return new SQLMakerCondition( array(
+            'quote_char' => $this->quote_char,
+            'name_sep'   => $this->name_sep,
+        ) );
+    }
+
     function new_select ($args=array( ))
     {
         return new $this->select_class( array_merge( array(

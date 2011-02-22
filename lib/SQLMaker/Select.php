@@ -131,19 +131,21 @@ class SQLMakerSelect
 
     function add_from ($table, $alias=null)
     {
-        if (SQLMakerUtil::ref($table) == 'SCALAR') {
-            $table = array($table => $alias);
+        $ref = SQLMakerUtil::ref($table);
+
+        if ($ref == 'ARRAY') {
+            list($table, $alias) = $table;
+        }
+        else if ($ref == 'HASH') {
+            list($table, $alias) = each($table);
         }
 
         if ( is_object($table) && method_exists($table, 'as_sql') ) {
-            $this->subqueries = array_merge($this->subqueries, $table->bind);
+            $this->subqueries = array_merge($this->subqueries, $table->bind( ));
             $this->from[ ] = array("({$table->as_sql( )})", $alias);
         }
         else {
-            foreach ($table as $t => $a) {
-                if ( is_int($t) ) list($t, $a) = array($a, null);
-                $this->from[ ] = array($t, $a);
-            }
+            $this->from[ ] = array($table, $alias);
         }
 
         return $this;
@@ -152,11 +154,12 @@ class SQLMakerSelect
     function add_join ($table, $joins)
     {
         $alias = null;
-        if (SQLMakerUtil::ref($table) == 'HASH') {
-            list($table, $alias) = each($table);
+        if (SQLMakerUtil::ref($table) == 'ARRAY') {
+            list($table, $alias) = $table;
         }
-        else if ( is_object($table) && method_exists($table, 'as_sql') ) {
-            $this->subqueries = array_merge($this->subqueries, $table->bind);
+
+        if ( is_object($table) && method_exists($table, 'as_sql') ) {
+            $this->subqueries = array_merge($this->subqueries, $table->bind( ));
             $table = "({$table->as_sql( )})";
         }
 
@@ -240,7 +243,7 @@ class SQLMakerSelect
 
                 if (SQLMakerUtil::ref($join['condition']) == 'ARRAY') {
                     $cond = array( );
-                    foreach ($this->condition as &$c) {
+                    foreach ($join['condition'] as &$c) {
                         $cond[ ] = $this->quote($c);
                     }
                     $sql .= ' USING (' . implode(', ', $cond) . ')';
@@ -321,8 +324,9 @@ class SQLMakerSelect
         return 'ORDER BY ' . implode(', ', $order) . $this->new_line;
     }
 
-    function add_group_by ($group, $group=null)
+    function add_group_by ($group, $order=null)
     {
+        $order = null;
         if (SQLMakerUtil::ref($group) == 'HASH') {
             list($group, $order) = each($group);
         }
@@ -397,11 +401,11 @@ class SQLMakerSelect
 
     protected function _add_index_hint ($table, $alias=null)
     {
-        if (SQLMakerUtil::ref($table) == 'HASH') {
-            list($table, $alias) = each($table);
+        if (SQLMakerUtil::ref($table) == 'ARRAY') {
+            list($table, $alias) = $table;
         }
 
-        $quoted = isset($alias) ? "{$this->quote($table)} {$this->quote($alias)}" : $this->quote($table);
+        $quoted = empty($alias) ? $this->quote($table): "{$this->quote($table)} {$this->quote($alias)}";
 
         if ( !isset($this->index_hint[$table]) ) {
             return $quoted;
