@@ -134,8 +134,8 @@ class SQLMakerSelectSet
 
     protected function quote ($label)
     {
-        if (SQLMakerUtil::ref($label) == 'HASH' && $label['inject']) {
-            return $label['inject'];
+        if ( is_a($label, 'SQLMakerRawString') ) {
+            return $label->raw_string( );
         }
 
         return SQLMakerUtil::quote_identifier(

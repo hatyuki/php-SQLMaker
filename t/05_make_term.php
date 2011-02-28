@@ -2,6 +2,7 @@
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
 require_once 'SQLMaker/Condition.php';
+require_once 'SQLMaker/Statement.php';
 
 
 function test ($t)
@@ -33,7 +34,7 @@ function test ($t)
             'bind'  => array('bar'),
         ),
         array(  # 11
-            'in'    => array('foo' => array('inject' => 'IS NOT NULL')),
+            'in'    => array('foo' => mark::raw('IS NOT NULL')),
             'query' => '`foo` IS NOT NULL',
             'bind'  => array( ),
         ),
@@ -58,7 +59,7 @@ function test ($t)
             'bind'  => array('foo', 'bar', 'baz'),
         ),
         array(  # 21
-            'in'    => array('foo_id' => array('inject' => array('IN (SELECT foo_id FROM bar WHERE t = ?)' => array(44)))),
+            'in'    => array('foo_id' => mark::raw('IN (SELECT foo_id FROM bar WHERE t = ?)', array(44))),
             'query' => '`foo_id` IN (SELECT foo_id FROM bar WHERE t = ?)',
             'bind'  => array(44),
         ),
@@ -68,7 +69,7 @@ function test ($t)
             'bind'  => array(44),
         ),
         array(  # 25
-            'in'    => array('foo_id' => array('inject' => array('MATCH (col1, col2) AGAINST (?)' => array('apples')))),
+            'in'    => array('foo_id' => mark::raw('MATCH (col1, col2) AGAINST (?)', array('apples'))),
             'query' => '`foo_id` MATCH (col1, col2) AGAINST (?)',
             'bind'  => array('apples'),
         ),
@@ -98,7 +99,17 @@ function test ($t)
             'query' => '`foo` NOT BETWEEN ? AND ?',
             'bind'  => array(1, 2),
         ),
-        //array(  # 37
+        array(  # 37
+            'in'    => array('foo_id' => mark::raw('IN (SELECT foo_id FROM bar WHERE t = ? AND q = ?)', array(1, 2))),
+            'query' => '`foo_id` IN (SELECT foo_id FROM bar WHERE t = ? AND q = ?)',
+            'bind'  => array(1, 2),
+        ),
+        array(  # 39
+            'in'    => array('foo_id' => array('in' => mark::raw('SELECT foo_id FROM bar WHERE t = ?', array(44)))),
+            'query' => '`foo_id` IN (SELECT foo_id FROM bar WHERE t = ?)',
+            'bind'  => array(44),
+        ),
+        //array(  # 41
             //'in'    => array('' => ''),
             //'query' => '',
             //'bind'  => array(),

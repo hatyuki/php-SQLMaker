@@ -2,6 +2,7 @@
 <?php
 require_once dirname(__FILE__).'/lib/setup.php';
 require_once 'SQLMaker.php';
+require_once 'SQLMaker/Statement.php';
 
 
 function insert_driver_sqlite ($t)
@@ -72,6 +73,12 @@ function update_driver_sqlite ($t)
         list($sql, $binds) = $builder->update('foo', array('bar' => 'baz', 'john' => 'man'));
         $t->is($sql, 'UPDATE "foo" SET "bar" = ?, "john" = ?');
         $t->is(implode(',', $binds), 'baz,man');
+    } while (false);
+
+    do {
+        list($sql, $binds) = $builder->update('foo', array('created_at' => mark::raw('NOW( )')));
+        $t->is($sql, 'UPDATE "foo" SET "created_at" = NOW( )');
+        $t->is(implode(',', $binds), '');
     } while (false);
 }
 

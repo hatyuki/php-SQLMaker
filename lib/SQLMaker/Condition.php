@@ -11,6 +11,10 @@ class SQLMakerCondition
 
     protected function quote ($label)
     {
+        if ( is_a($label, 'SQLMakerStatement') ) {
+            return $label->statement( );
+        }
+
         return SQLMakerUtil::quote_identifier(
             $label, $this->quote_char, $this->name_sep
         );
@@ -61,8 +65,8 @@ class SQLMakerCondition
                 $bind  = array( );
                 $terms = array( );
 
-                foreach ($v as $vv) {
-                    list($t, $b) = $this->make_term($col, $vv);
+                foreach ($v as $v2) {
+                    list($t, $b) = $this->make_term($col, $v2);
                     $terms[ ] = "({$t})";
                     $bind = array_merge($bind, $b);
                 }
@@ -76,6 +80,12 @@ class SQLMakerCondition
                 $term = "{$this->quote($col)} {$op} ({$t})";
                 return array($term, $b);
             }
+            # make_term('foo', array('in' => mark::raw('SELECT foo FROM bar WHERE baz = ?', array(3))))
+            #  => foo IN (SELECT foo FROM bar WHERE baz = ?)
+            else if ( ($op == 'IN' || $op == 'NOT IN') && $ref_v == 'SQLMakerStatement') {
+                $term = "{$this->quote($col)} {$op} ({$v->statement( )})";
+                return array($term, $v->bind( ));
+            }
             # make_term('foo', array('between' => array(1, 2))) => foo BETWEEN 1 AND 2
             else if ( ($op == 'BETWEEN' || $op == 'NOT BETWEEN') && $ref_v == 'ARRAY') {
                 if (sizeof($v) != 2) {
@@ -84,24 +94,17 @@ class SQLMakerCondition
                 $term = "{$this->quote($col)} {$op} ? AND ?";
                 return array($term, $v);
             }
-            else if ($op == 'INJECT') {
-                # make_term('foo', array('inject' => array('!= ?' => array(3)))) => foo != 3
-                if ($ref_v == 'HASH') {
-                    list($t, $b) = each($v);
-                    $term = "{$this->quote($col)} {$t}";
-                    return array($term, $b);
-                }
-                # make_term('foo', array('inject' => "ILIKE 'toku%'")) => foo ILIKE 'toku%'
-                else {
-                    $term = "{$this->quote($col)} {$v}";
-                    return array($term, array( ));
-                }
-            }
-            # make_term('foo', array('>' => 3)) => foo BETWEEN 1 AND 2
+            # make_term('foo', array('>' => 3)) => foo > 3
             else {
                 $term = "{$this->quote($col)} {$op} ?";
                 return array($term, array($v));
             }
+        }
+        # make_term('foo', mark::raw('LIKE 'toku%'')) => foo LIKE 'toku%'
+        # make_term('foo', mark::raw('!= ?', 3)) => foo != ?
+        else if ($ref_val == 'SQLMakerStatement') {
+            $term = "{$this->quote($col)} {$val->statement( )}";
+            return array($term, $val->bind( ));
         }
         else {
             if ( isset($val) ) {
@@ -155,6 +158,7 @@ class SQLMakerCondition
         ) );
     }
 
+    function bind       ( ) { return $this->bind; }
     function as_sql     ( ) { return implode(' AND ', $this->sql); }
     function __toString ( ) { return $this->as_sql( ); }
 }

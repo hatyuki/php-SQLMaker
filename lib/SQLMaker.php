@@ -61,9 +61,9 @@ class SQLMaker
         foreach ($values as $col => $val) {
             $quoted_columns[ ] = $this->quote($col);
 
-            if (SQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
-                # $builder->insert('foo', array('created_on' => array('inject' => 'NOW( )')));
-                $columns[ ] = $val['inject'];
+            if (SQLMakerUtil::ref($val) == 'SQLMakerStatement') {
+                # $builder->insert('foo', array('created_at' => raw::mark('NOW( )')));
+                $columns[ ] = "{$quoted_col} = {$val->statement( )}";
             }
             else {
                 $columns[ ] = '?';
@@ -102,9 +102,9 @@ class SQLMaker
         foreach ($args as $col => $val) {
             $quoted_col = $this->quote($col);
 
-            if (SQLMakerUtil::ref($val) == 'HASH' && isset($val['inject'])) {
-                # $builder->insert('foo', array('created_on' => array('inject' => 'NOW( )')));
-                $columns[ ] = "{$quoted_col} = {$val['inject']}";
+            if (SQLMakerUtil::ref($val) == 'SQLMakerStatement') {
+                # $builder->update('foo', array('created_at' => raw::mark('NOW( )')));
+                $columns[ ] = "{$quoted_col} = {$val->statement( )}";
             }
             else {
                 $columns[ ] = "{$quoted_col} = ?";
@@ -123,11 +123,7 @@ class SQLMaker
 
     protected function make_where_clause ($where)
     {
-        $w = new SQLMakerCondition( array(
-            'quote_char' => $this->quote_char,
-            'name_sep'   => $this->name_sep,
-        ) );
-
+        $w = $this->new_condition( );
         $w->add($where);
 
         $sql = $w->as_sql( );
